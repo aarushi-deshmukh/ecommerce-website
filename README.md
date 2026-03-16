@@ -6,6 +6,20 @@ This system was designed to provide small businesses with an easy way to manage 
 
 ---
 
+# 📸 Screenshots
+
+<img width="1919" height="893" alt="image" src="https://github.com/user-attachments/assets/9fa87306-d32f-4da6-a498-3300837ba70d" />
+<img width="1919" height="897" alt="image" src="https://github.com/user-attachments/assets/75489ca1-636b-431d-b962-6f6e3ce9f2a8" />
+
+Example:
+
+* Dashboard
+* Product Listing
+* Seller Product Management
+* Shopping Cart
+
+---
+
 # 🚀 Features
 
 ### 👤 Authentication System
@@ -183,16 +197,3 @@ This platform helps small businesses:
 
 Testing indicated it could improve small business reach by **~4.3%** through increased online visibility and streamlined purchasing.
 
----
-
-# 📸 Screenshots
-
-<img width="1919" height="893" alt="image" src="https://github.com/user-attachments/assets/9fa87306-d32f-4da6-a498-3300837ba70d" />
-
-
-Example:
-
-* Buyer Dashboard
-* Product Listing
-* Seller Product Management
-* Shopping Cart
