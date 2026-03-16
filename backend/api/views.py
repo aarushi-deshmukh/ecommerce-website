@@ -174,19 +174,26 @@ def add_to_cart(request):
 def get_cart(request):
 
     if not request.user.is_authenticated:
-        return JsonResponse({"error": "Unauthorized"}, status=401)
+        return JsonResponse({"error": "Login required"}, status=401)
 
     buyer = Buyer.objects.get(user=request.user)
 
-    cart_items = CartItem.objects.filter(buyer=buyer)
+    cart = Cart.objects.filter(buyer=buyer).first()
+
+    if not cart:
+        return JsonResponse({"items": []})
+
+    items = CartItem.objects.filter(cart=cart)
 
     data = []
 
-    for item in cart_items:
+    for item in items:
         data.append({
-            "product": item.product.name,
-            "price": item.product.price,
-            "quantity": item.quantity
+            "product_id": item.product.id,
+            "name": item.product.name,
+            "price": float(item.product.price),
+            "quantity": item.quantity,
+            "image": item.product.image.url if item.product.image else None
         })
 
     return JsonResponse({"items": data})
@@ -212,8 +219,10 @@ def add_to_wishlist(request):
 @csrf_exempt
 def get_wishlist(request):
 
-    user = request.user
-    buyer = Buyer.objects.get(user=user)
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Login required"}, status=401)
+
+    buyer = Buyer.objects.get(user=request.user)
 
     items = Wishlist.objects.filter(buyer=buyer)
 
@@ -221,8 +230,10 @@ def get_wishlist(request):
 
     for item in items:
         data.append({
-            "product": item.product.name,
-            "price": item.product.price
+            "product_id": item.product.id,
+            "name": item.product.name,
+            "price": float(item.product.price),
+            "image": item.product.image.url if item.product.image else None
         })
 
     return JsonResponse({"items": data})

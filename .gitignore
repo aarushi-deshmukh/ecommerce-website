@@ -34,3 +34,7 @@ coverage
 venv/
 
 backend/backend/settings.py
+frontend/node_modules/
+frontend/.vscode/
+backend/__pycache__/
+*.pyc
