@@ -95,6 +95,14 @@ import Home from "@/pages/Dashboard.vue"
 import SignIn from "@/pages/Auth/SignIn.vue"
 import SignUp from "@/pages/Auth/SignUp.vue"
 import BuyerDashboard from "@/pages/Buyer/BuyerDashboard.vue"
+import SellerDashboard from '@/pages/Seller/SellerDashboard.vue'
+import SProfile from '@/pages/Seller/SProfile.vue'
+import BProfile from '@/pages/Buyer/BuyerProfile.vue'
+import Cart from '@/pages/Buyer/Cart.vue'
+import Product from '@/pages/Product.vue'
+import MyProducts from '@/pages/Seller/MyProducts.vue'
+import Wishlist from '@/pages/Buyer/Wishlist.vue'
+import History from '@/pages/Buyer/History.vue' 
 
 const routes = [
 
@@ -103,7 +111,13 @@ const routes = [
     component: MainLayout,
     children: [
       { path: "", component: Home },
-      { path: "buyer-dashboard", component: BuyerDashboard }
+      { path: "buyer-dashboard", component: BuyerDashboard },
+      { path: 'buyer-profile', component: BProfile },
+      { path: 'seller-profile', component: SProfile },
+      { path: 'cart', component: Cart },
+      { path: 'seller-dashboard', component: SellerDashboard },
+      { path: '/history', component: History },
+      { path: 'wishlist', component: Wishlist },
     ]
   },
 

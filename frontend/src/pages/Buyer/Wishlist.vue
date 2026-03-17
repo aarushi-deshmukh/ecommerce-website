@@ -1,12 +1,5 @@
 <template>
   <div>
-    <Header 
-      :searchQuery="searchQuery"
-      @update:searchQuery="searchQuery = $event"
-      @filter-category="filterCategory"
-      ref="headerRef"
-    />
-
     <div class="wishlist-page">
       <div class="wishlist-container">
         <div class="page-header">
@@ -77,13 +70,9 @@
 </template>
 
 <script>
-import axios from 'axios';
-import Header from '@/components/buyer-header.vue';
+import api from '@/api';
 
 export default {
-  components: {
-    Header
-  },
   data() {
     return {
       wishlist: [],
@@ -106,7 +95,7 @@ export default {
   methods: {
     async fetchWishlistItems() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/wishlist/');
+        const response = await api.get('wishlist/');
         this.wishlist = response.data.items;
       } catch (error) {
         console.error('Error fetching wishlist:', error);
@@ -114,7 +103,7 @@ export default {
     },
     async fetchCartItems() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/cart/');
+        const response = await api.get('cart/');
         this.cart = response.data.items;
       } catch (error) {
         console.error("Error fetching cart:", error);
@@ -143,7 +132,7 @@ export default {
           brand: product.brand,
           price: product.price
         };
-        await axios.post("http://127.0.0.1:8000/api/add-to-cart/", payload, {
+        await api.post("cart/add/", payload, {
           headers: { "Content-Type": "application/json" }
         });
         await this.fetchCartItems();

@@ -1,10 +1,5 @@
 <template>
   <div>
-    <Header 
-      :totalCartItems="totalCartItems" 
-      :totalWishlistItems="totalWishlistItems"
-    />
-
     <div class="container">
       <aside class="sidebar">
         <div class="profile-section">
@@ -43,29 +38,6 @@
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
               </svg>
               <span>Edit Profile</span>
-            </li>
-            <li 
-              class="nav-item"
-              :class="{ active: activeTab === 'orders' }"
-              @click="activeTab = 'orders'"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                <line x1="12" y1="22.08" x2="12" y2="12"></line>
-              </svg>
-              <span>Order History</span>
-            </li>
-            <li 
-              class="nav-item"
-              :class="{ active: activeTab === 'settings' }"
-              @click="activeTab = 'settings'"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M12 1v6m0 6v6m5.196-13.804L13.804 8.59m-3.608 6.82-3.392 3.392m9.804 0-3.392-3.392m-6.82-3.608L1.804 7.804M23 12h-6m-6 0H1"></path>
-              </svg>
-              <span>Settings & Privacy</span>
             </li>
             <li 
               class="nav-item"
@@ -150,58 +122,6 @@
           </div>
         </div>
 
-        <!-- Order History Tab -->
-        <div v-if="activeTab === 'orders'" class="tab-content">
-          <div class="page-header">
-            <h1>Order History</h1>
-            <p class="subtitle">Track and view your past orders</p>
-          </div>
-
-          <div class="details-container">
-            <div class="empty-state">
-              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-              </svg>
-              <h3>No orders yet</h3>
-              <p>Your order history will appear here</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Settings Tab -->
-        <div v-if="activeTab === 'settings'" class="tab-content">
-          <div class="page-header">
-            <h1>Settings & Privacy</h1>
-            <p class="subtitle">Manage your account preferences</p>
-          </div>
-
-          <div class="details-container">
-            <div class="settings-section">
-              <h3>Account Settings</h3>
-              <div class="setting-item">
-                <div>
-                  <strong>Email Notifications</strong>
-                  <p>Receive updates about your orders</p>
-                </div>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <div class="setting-item">
-                <div>
-                  <strong>Marketing Emails</strong>
-                  <p>Receive promotional offers and news</p>
-                </div>
-                <label class="switch">
-                  <input type="checkbox">
-                  <span class="slider"></span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- Help Tab -->
         <div v-if="activeTab === 'help'" class="tab-content">
           <div class="page-header">
@@ -229,13 +149,9 @@
 </template>
 
 <script>
-import axios from 'axios';
-import Header from '@/components/buyer-header.vue';
+import api from '@/api'
 
 export default {
-  components: {
-    Header
-  },
   data() {
     return {
       cart: [],
@@ -243,49 +159,46 @@ export default {
       loading: false,
       activeTab: 'profile',
       userProfile: {
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        phone: '+1 234 567 8900',
-        address: '123 Main Street, City, Country',
-        joinedDate: 'January 2024'
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        joinedDate: ''
       }
     };
   },
-  computed: {
-    totalCartItems() {
-      return this.cart.length;
-    },
-    totalWishlistItems() {
-      return this.wishlist.length;
-    }
-  },
   methods: {
-    async fetchWishlistItems() {
-      try {
-        const response = await axios.get('http://127.0.0.1:8000/api/wishlist/');
-        this.wishlist = response.data.items;
-      } catch (error) {
-        console.error("Error fetching wishlist:", error);
-      }
-    },
-    async fetchCartItems() {
-      try {
-        const response = await axios.get('http://127.0.0.1:8000/api/cart/');
-        this.cart = response.data.items;
-      } catch (error) {
-        console.error("Error fetching cart:", error);
-      }
-    },
+    async fetchProfile() {
+  try {
+
+    this.loading = true
+
+    const res = await api.get("profile/")
+
+    this.userProfile = res.data
+
+  } catch (error) {
+    console.error("Failed to load profile:", error)
+  } finally {
+    this.loading = false
+  }
+},
+    
     formatLabel(key) {
       return key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
     },
     logout() {
-      console.log('Logging out...');
-    }
+
+  localStorage.removeItem("access")
+  localStorage.removeItem("refresh")
+  localStorage.removeItem("user_type")
+
+  this.$router.push("/signin")
+
+}
   },
   mounted() {
-    this.fetchCartItems();
-    this.fetchWishlistItems();
+    this.fetchProfile();
   }
 };
 </script>
@@ -313,11 +226,10 @@ body {
 .sidebar {
   width: 300px;
   background-color: white;
-  padding: 40px 24px 32px;
+  padding: 10px 24px 20px;
   display: flex;
   flex-direction: column;
   position: fixed;
-  height: calc(100vh - 70px);
   overflow-y: auto;
   border-right: 1px solid #e8e8e0;
 }
@@ -376,7 +288,7 @@ body {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   flex: 1;
 }
 
@@ -451,7 +363,7 @@ body {
 .content {
   margin-left: 300px;
   flex: 1;
-  padding: 48px 64px;
+  padding: 20px 64px;
   background-color: #ffffff;
 }
 
@@ -486,7 +398,7 @@ body {
   background: #ffffff;
   border: 1px solid #e8e8e0;
   border-radius: 16px;
-  padding: 40px;
+  padding: 20px;
   max-width: 900px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }

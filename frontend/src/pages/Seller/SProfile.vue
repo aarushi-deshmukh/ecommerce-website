@@ -150,14 +150,6 @@ export default {
 </script>
 
 <style>
-body {
-  background-color: #fafbeb;
-  color: rgb(33, 53, 85);
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-}
-
 .container {
     display: flex;
     flex-direction: row;
@@ -167,7 +159,6 @@ body {
   width: 20vw;
   min-width: 250px;
   max-width: 300px;
-  height: 100vh;
   background-color: rgb(245, 239, 231);
   color: rgb(62, 88, 121);
   padding: 20px;

@@ -4,9 +4,7 @@ import { ref } from "vue"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
-
-const userType = localStorage.getItem("user_type") // buyer | seller | null
-
+const userType = computed(() => localStorage.getItem("user_type"))
 const showCategoryDropdown = ref(false)
 const searchQuery = ref("")
 

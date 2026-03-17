@@ -3,43 +3,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
   <div>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="nav-left">
-        <div class="logo" @click="goHome">PARS</div>
-        <div @click="toggleCategories" class="categories-btn">
-          Categories 
-          <span class="dropdown-icon" :class="{ rotated: showCategories }">▾</span>
-        </div>
-      </div>
-      
-      <input 
-        type="text" 
-        v-model="searchQuery" 
-        placeholder="Search products..." 
-        class="search-bar"
-      />
-      
-      <div class="nav-right">
-        <button @click="goToSignIn" class="btn-outline">Sign In</button>
-        <button @click="goToSignUp" class="btn-solid">Sign Up</button>
-      </div>
-    </nav>
-
-    <!-- Categories Dropdown -->
-    <transition name="dropdown">
-      <div v-if="showCategories" class="categories-dropdown">
-        <div 
-          v-for="cat in categories" 
-          :key="cat.value"
-          @click="filterCategory(cat.value)"
-          class="category-item"
-        >
-          {{ cat.label }}
-        </div>
-      </div>
-    </transition>
-
     <!-- Banner Section -->
     <section class="banner">
       <div class="banner-content">
@@ -50,7 +13,7 @@
           <div class="feature">✓ 30-Day Easy Returns</div>
           <div class="feature">✓ Exclusive Member Deals</div>
         </div>
-        <button class="shop-btn">Shop Now</button>
+        <button class="shop-btn" @click="$router.push('/buyer-dashboard')">Shop Now</button>
       </div>
       <div class="banner-images">
         <div class="main-image">
@@ -119,57 +82,6 @@
         </div>
       </div>
     </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="footer-content">
-        <div class="footer-section">
-          <h3 class="footer-logo">PARS</h3>
-          <p class="footer-desc">Your one-stop destination for premium products and exceptional shopping experience.</p>
-          <div class="social-icons">
-            <a href="#" class="social-icon"><i class="fa fa-instagram"></i></a>
-            <a href="#" class="social-icon"><i class="fa fa-twitter"></i></a>
-            <a href="#" class="social-icon"><i class="fa fa-facebook-f"></i></a>
-            <a href="#" class="social-icon"><i class="fa fa-telegram"></i></a>
-          </div>
-        </div>
-        
-        <div class="footer-section">
-          <h4>Shop</h4>
-          <ul class="footer-links">
-            <li><a href="#">Electronics</a></li>
-            <li><a href="#">Clothing</a></li>
-            <li><a href="#">Accessories</a></li>
-            <li><a href="#">Home Appliances</a></li>
-          </ul>
-        </div>
-        
-        <div class="footer-section">
-          <h4>Support</h4>
-          <ul class="footer-links">
-            <li><a href="#">Contact Us</a></li>
-            <li><a href="#">FAQs</a></li>
-            <li><a href="#">Shipping Info</a></li>
-            <li><a href="#">Returns</a></li>
-          </ul>
-        </div>
-        
-        <div class="footer-section">
-          <h4>Company</h4>
-          <ul class="footer-links">
-            <li><a href="#">About Us</a></li>
-            <li><a href="#">Careers</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Terms of Service</a></li>
-          </ul>
-        </div>
-      </div>
-      
-      <div class="footer-bottom">
-        <p>&copy; 2025 PARS. All rights reserved.</p>
-      </div>
-    </footer>
-
   </div>
 </template>
 
@@ -333,146 +245,6 @@ export default {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-/* Navbar */
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #fff;
-  padding: 16px 40px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.nav-left, .nav-right {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  cursor: pointer;
-  color: #1a1a1a;
-  letter-spacing: 1px;
-}
-
-.categories-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  padding: 8px 16px;
-  border-radius: 8px;
-  transition: background-color 0.2s;
-  font-weight: 500;
-  color: #333;
-}
-
-.categories-btn:hover {
-  background-color: #f5f5f5;
-}
-
-.dropdown-icon {
-  transition: transform 0.3s ease;
-  display: inline-block;
-}
-
-.dropdown-icon.rotated {
-  transform: rotate(180deg);
-}
-
-.search-bar {
-  flex: 1;
-  max-width: 500px;
-  padding: 12px 20px;
-  border: 2px solid #e5e5e5;
-  border-radius: 24px;
-  font-size: 0.95rem;
-  outline: none;
-  transition: all 0.3s ease;
-}
-
-.search-bar:focus {
-  border-color: #1a1a1a;
-  box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
-}
-
-.btn-outline, .btn-solid {
-  padding: 10px 24px;
-  border-radius: 24px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid #1a1a1a;
-}
-
-.btn-outline {
-  background: transparent;
-  color: #1a1a1a;
-}
-
-.btn-outline:hover {
-  background: #f5f5f5;
-}
-
-.btn-solid {
-  background: #1a1a1a;
-  color: #fff;
-}
-
-.btn-solid:hover {
-  background: #333;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Categories Dropdown */
-.categories-dropdown {
-  position: fixed;
-  top: 70px;
-  left: 40px;
-  background: #fff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  padding: 8px;
-  border-radius: 12px;
-  min-width: 200px;
-  z-index: 1100;
-}
-
-.category-item {
-  padding: 12px 16px;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: background-color 0.2s;
-  font-weight: 500;
-  color: #333;
-}
-
-.category-item:hover {
-  background-color: #f5f5f5;
-}
-
-.dropdown-enter-active, .dropdown-leave-active {
-  transition: all 0.3s ease;
-}
-
-.dropdown-enter-from {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-5px);
 }
 
 /* Banner */
@@ -730,8 +502,9 @@ export default {
 
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 32px;
+  grid-template-columns: repeat(3, 350px); /* match card width */
+  justify-content: center; /* center the grid */
+  gap: 40px; /* space between cards */
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -743,7 +516,7 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   width: 350px;
-  height: 550px;
+  height: 500px;
 }
 
 .product-card:hover {
@@ -753,13 +526,13 @@ export default {
 
 .product-image {
   width: 100%;
-  overflow: hidden;
+  height: 290px;
+  overflow: clip;
   background: #f5f5f5;
 }
 
 .product-image img {
   width: 100%;
-  object-fit: contain;
   transition: transform 0.4s ease;
 }
 
@@ -821,91 +594,6 @@ export default {
   background-color: #333;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-/* Footer */
-.footer {
-  background-color: white;
-  color: black;
-  padding: 80px 24px 32px;
-  border-top: 1px solid #e5e5e5;
-}
-
-.footer-content {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 60px;
-  max-width: 1400px;
-  margin: 0 auto 40px;
-}
-
-.footer-section h3,
-.footer-section h4 {
-  margin-bottom: 20px;
-  font-size: 1.25rem;
-}
-
-.footer-logo {
-  font-size: 1.8rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-.footer-desc {
-  color: gray;
-  line-height: 1.7;
-  margin-bottom: 24px;
-  max-width: 350px;
-}
-
-.social-icons {
-  display: flex;
-  gap: 16px;
-}
-
-.social-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  text-decoration: none;
-  font-size: 1.2rem;
-  transition: all 0.3s ease;
-}
-
-.social-icon:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-.footer-links {
-  list-style: none;
-  padding: 0;
-}
-
-.footer-links li {
-  margin-bottom: 12px;
-}
-
-.footer-links a {
-  color: #aaa;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-  color: #fff;
-}
-
-.footer-bottom {
-  text-align: center;
-  padding-top: 32px;
-  border-top: 1px solid #e5e5e5;
-  color: #999;
-  font-size: 0.9rem;
 }
 
 </style>

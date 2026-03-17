@@ -1,12 +1,5 @@
 <template>
   <div>
-    <Header 
-      :searchQuery="searchQuery"
-      @update:searchQuery="searchQuery = $event"
-      @filter-category="filterCategory"
-      ref="headerRef"
-    />
-
     <div class="cart-page">
       <div class="cart-container">
         <div class="page-header">
@@ -25,10 +18,11 @@
 
         <div v-else class="cart-content">
           <div class="cart-items">
-            <div v-for="item in cart" :key="item.id" class="cart-item">
+            <div v-for="item in cart" :key="item.product_id" class="cart-item">
               <div class="item-main">
                 <div class="item-image-placeholder">
-                  <span>{{ item.name.charAt(0) }}</span>
+                  <img v-if="item.image" :src="item.image" class="product-image" />
+  <span v-else>{{ item.name.charAt(0) }}</span>
                 </div>
                 <div class="item-info">
                   <h3>{{ item.name }}</h3>
@@ -82,99 +76,110 @@
 </template>
 
 <script>
-import axios from 'axios';
-import Header from '@/components/buyer-header.vue';
+import api from '@/api'
 
 export default {
-  components: {
-    Header
-  },
   data() {
     return {
       cart: [],
       wishlist: [],
-      cartTotal: 0,
       searchQuery: '',
       selectedCategory: 'all',
-    };
-  },
-  methods: {
-    async fetchCartItems() {
-      try {
-        const response = await axios.get('http://127.0.0.1:8000/api/cart/');
-        this.cart = response.data.items;
-        this.cartTotal = response.data.total.toFixed(2);
-      } catch (error) {
-        console.error('Error fetching cart:', error);
-      }
-    },
-    async fetchWishlistItems() {
-      try {
-        const response = await axios.get('http://127.0.0.1:8000/api/wishlist/');
-        this.wishlist = response.data.items;
-      } catch (error) {
-        console.error('Error fetching wishlist:', error);
-      }
-    },
-    async removeFromCart(product) {
-      try {
-        await axios.delete(`http://127.0.0.1:8000/api/remove-from-cart/${product.id}/`);
-        this.cart = this.cart.filter(p => p.id !== product.id);
-        await this.fetchCartItems();
-        this.$refs.headerRef?.refreshCounts();
-      } catch (error) {
-        console.error('Failed to remove item:', error);
-      }
-    },
-    async addToWishlist(product) {
-      try {
-        const payload = {
-          quantity: product.quantity || 1,
-          name: product.name,
-          brand: product.brand,
-          price: product.price,
-        };
-
-        await axios.post("http://127.0.0.1:8000/api/add-to-wishlist/", payload, {
-          headers: { "Content-Type": "application/json" }
-        });
-
-        await this.fetchWishlistItems();
-        await this.removeFromCart(product);
-        this.$refs.headerRef?.refreshCounts();
-      } catch (err) {
-        console.error("Failed to save for later:", err);
-      }
-    },
-    async checkout() {
-      try {
-        await axios.post('http://127.0.0.1:8000/api/place-order/', {
-          items: this.cart
-        }, {
-          headers: { "Content-Type": "application/json" }
-        });
-
-        alert("Order placed successfully!");
-        this.cart = [];
-        this.cartTotal = 0;
-        this.$refs.headerRef?.refreshCounts();
-      } catch (error) {
-        console.error("Failed to place order:", error);
-        alert("Failed to place order.");
-      }
-    },
-    goHome() {
-      window.location.href = '/buyer-dashboard';
-    },
-    filterCategory(category) {
-      this.selectedCategory = category;
     }
   },
-  mounted() {
-    this.fetchCartItems();
-    this.fetchWishlistItems();
+  computed: {
+  cartTotal() {
+    return this.cart
+      .reduce((total, item) => total + (item.price * item.quantity), 0)
+      .toFixed(2)
   }
-};
+},
+
+  methods: {
+
+    async fetchCartItems() {
+      try {
+        const response = await api.get('cart/')
+        this.cart = response.data.items
+      } catch (error) {
+        console.error('Error fetching cart:', error)
+      }
+    },
+
+    async fetchWishlistItems() {
+      try {
+        const response = await api.get('wishlist/')
+        this.wishlist = response.data.items
+      } catch (error) {
+        console.error('Error fetching wishlist:', error)
+      }
+    },
+
+    async removeFromCart(product) {
+  try {
+
+    await api.delete(`cart/remove/${product.product_id}/`)
+
+    this.cart = this.cart.filter(
+      p => p.product_id !== product.product_id
+    )
+
+  } catch (error) {
+    console.error('Failed to remove item:', error)
+  }
+},
+
+    async addToWishlist(product) {
+      try {
+
+        await api.post("wishlist/add/", {
+  product_id: product.product_id
+})
+        await this.fetchWishlistItems()
+
+        await this.removeFromCart(product)
+
+        this.$refs.headerRef?.refreshCounts()
+
+      } catch (err) {
+        console.error("Failed to save for later:", err)
+      }
+    },
+
+    async checkout() {
+      try {
+
+        await api.post('place-order/', {
+          items: this.cart
+        })
+
+        alert("Order placed successfully!")
+
+        this.cart = []
+        
+        this.$refs.headerRef?.refreshCounts()
+
+      } catch (error) {
+        console.error("Failed to place order:", error)
+        alert("Failed to place order.")
+      }
+    },
+
+    goHome() {
+      this.$router.push('/buyer-dashboard')
+    },
+
+    filterCategory(category) {
+      this.selectedCategory = category
+    }
+
+  },
+
+  mounted() {
+    this.fetchCartItems()
+    this.fetchWishlistItems()
+  }
+}
 </script>
 
 <style scoped>
@@ -192,6 +197,13 @@ export default {
 .cart-container {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.product-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 /* Page Header */

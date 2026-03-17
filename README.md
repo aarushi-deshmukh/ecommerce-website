@@ -14,8 +14,7 @@ This system was designed to provide small businesses with an easy way to manage 
 Example:
 
 * Dashboard
-* Product Listing
-* Seller Product Management
+* Category Listing
 * Shopping Cart
 
 ---

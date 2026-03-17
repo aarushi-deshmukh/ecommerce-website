@@ -53,8 +53,10 @@
 
 <script>
 import axios from "axios"
+
 export default {
   name: "SigninForm",
+
   data() {
     return {
       email: "",
@@ -63,46 +65,66 @@ export default {
       loading: false,
       message: "",
       error: ""
-    };
+    }
   },
+
   methods: {
+
     setAccountType(type) {
-      this.account_type = type;
+      this.account_type = type
     },
+
     async submitForm() {
-      console.log("LOGIN BUTTON CLICKED")
+
+      this.loading = true
+      this.error = ""
 
       try {
+
         const response = await axios.post(
           "http://127.0.0.1:8000/api/signin/",
           {
             email: this.email,
             password: this.password,
             account_type: this.account_type
-          },
-          { withCredentials: true }
+          }
         )
 
         const data = response.data
 
-  if (data.account_type?.toLowerCase() === "buyer") {
-    this.$router.push("/buyer-dashboard")
+        // store JWT
+        localStorage.setItem("access", data.access)
+        localStorage.setItem("refresh", data.refresh)
+        localStorage.setItem("user_type", data.account_type.toLowerCase())
+          
+        // redirect based on role
+        if (data.account_type?.toLowerCase() === "buyer") {
+          this.$router.push("/buyer-dashboard")
+          
+        } else if (data.account_type?.toLowerCase() === "seller") {
+          this.$router.push("/seller-dashboard")
 
-  } else if (data.account_type?.toLowerCase() === "seller") {
-    this.$router.push("/seller-dashboard")
-
-  } else {
-    console.log("ERROR:", error)
-    this.error = "Unknown account type"
-  }
+        } else {
+          console.log("Unknown account type")
+          this.error = "Unknown account type"
+        }
 
       } catch (error) {
-        console.log("ERROR:", error)
-        this.error = "Invalid login"
+
+        console.log("Login error:", error)
+
+        if (error.response?.data?.error) {
+          this.error = error.response.data.error
+        } else {
+          this.error = "Login failed"
+        }
+
+      } finally {
+        this.loading = false
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>

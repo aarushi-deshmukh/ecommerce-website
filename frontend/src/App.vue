@@ -1,12 +1,14 @@
 <template>
   <Header v-if="!isAuthPage" />
   <router-view />
+  <Footer v-if="!isAuthPage" />
 </template>
 
 <script setup>
 import { useRoute } from "vue-router"
 import { computed } from "vue"
 import Header from "@/components/header.vue"
+import Footer from "@/components/footer.vue"
 
 const route = useRoute()
 
