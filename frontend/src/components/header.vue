@@ -89,15 +89,15 @@ function logout(){
       <li @click="$router.push('/history')">History</li>
       <li @click="$router.push('/wishlist')">Wishlist</li>
       <li @click="$router.push('/cart')">Cart</li>
-      <li @click="$router.push('/buyer-profile')">Profile</li>
+      <li @click="$router.push('/profile')">Profile</li>
     </ul>
 
     <!-- SELLER -->
     <ul v-if="userType === 'seller'" class="nav-links">
-      <li @click="$router.push('/add-products')">Add Products</li>
+      <li @click="$router.push('/add-product')">Add Products</li>
       <li @click="$router.push('/my-products')">My Products</li>
       <li @click="$router.push('/analysis')">Analysis</li>
-      <li @click="$router.push('/seller-profile')">Profile</li>
+      <li @click="$router.push('/profile')">Profile</li>
     </ul>
 
   </div>

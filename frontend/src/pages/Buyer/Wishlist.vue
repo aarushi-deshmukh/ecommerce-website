@@ -21,7 +21,8 @@
             <div v-for="item in wishlist" :key="item.id" class="wishlist-item">
               <div class="item-main">
                 <div class="item-image-placeholder">
-                  <span>{{ item.name.charAt(0) }}</span>
+                  <img v-if="item.image" :src="item.image" class="product-image" />
+                  <span v-else>{{ item.name.charAt(0) }}</span>
                 </div>
                 <div class="item-info">
                   <h3>{{ item.name }}</h3>
@@ -45,7 +46,7 @@
 
           <div class="wishlist-summary">
             <h2>Quick Actions</h2>
-            
+
             <div class="summary-stats">
               <div class="stat-item">
                 <span class="stat-label">Total Items</span>
@@ -70,7 +71,7 @@
 </template>
 
 <script>
-import api from '@/api';
+import { fetchWishlist, removeWishlistItem, fetchCart, addToCart as addCartItem } from "@/services";
 
 export default {
   data() {
@@ -81,6 +82,7 @@ export default {
       selectedCategory: 'all'
     };
   },
+
   computed: {
     totalCartItems() {
       return this.cart.length;
@@ -89,68 +91,87 @@ export default {
       return this.wishlist.length;
     },
     totalValue() {
-      return this.wishlist.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2);
+      return this.wishlist
+        .reduce((sum, item) => sum + (item.price * item.quantity), 0)
+        .toFixed(2);
     }
   },
+
   methods: {
+
     async fetchWishlistItems() {
       try {
-        const response = await api.get('wishlist/');
-        this.wishlist = response.data.items;
-      } catch (error) {
-        console.error('Error fetching wishlist:', error);
+        this.wishlist = await fetchWishlist();
+      } catch {
+        console.error("Failed to fetch wishlist");
       }
     },
+
     async fetchCartItems() {
       try {
-        const response = await api.get('cart/');
-        this.cart = response.data.items;
-      } catch (error) {
-        console.error("Error fetching cart:", error);
+        this.cart = await fetchCart();
+      } catch {
+        console.error("Failed to fetch cart");
       }
     },
+
     goHome() {
       window.location.href = '/buyer-dashboard';
     },
+
     filterCategory(category) {
       this.selectedCategory = category;
     },
+
     async removeFromWishlist(product) {
       try {
-        await axios.delete(`http://127.0.0.1:8000/api/remove-from-wishlist/${product.id}/`);
-        this.wishlist = this.wishlist.filter(p => p.id !== product.id);
+        await removeWishlistItem(product.product_id || product.id);
+
+        this.wishlist = this.wishlist.filter(
+          p => (p.product_id || p.id) !== (product.product_id || product.id)
+        );
+
         this.$refs.headerRef?.refreshCounts();
-      } catch (error) {
-        console.error('Failed to remove item:', error);
+
+      } catch {
+        console.error("Failed to remove item");
       }
     },
+
     async addToCart(product) {
+      const id = product.product_id || product.id;
+
+      if (!id) {
+        console.error("Invalid product ID:", product);
+        return;
+      }
+
       try {
-        const payload = {
-          quantity: product.quantity || 1,
-          name: product.name,
-          brand: product.brand,
-          price: product.price
-        };
-        await api.post("cart/add/", payload, {
-          headers: { "Content-Type": "application/json" }
-        });
+        await addCartItem(id, 1);
+
         await this.fetchCartItems();
-        this.$refs.headerRef?.refreshCounts();
+        await this.removeFromWishlist(product);
+
+
       } catch (err) {
-        console.error("Failed to add to cart:", err);
+        console.error("Add to cart failed:", err);
       }
     },
     async addAllToCart() {
       try {
         for (const item of this.wishlist) {
-          await this.addToCart(item);
+          const id = item.product_id || item.id;
+          await addCartItem(id, 1);
         }
+
+        alert("All items added to cart");
+
       } catch (err) {
         console.error("Failed to add all to cart:", err);
       }
     }
   },
+
   mounted() {
     this.fetchWishlistItems();
     this.fetchCartItems();
@@ -359,6 +380,13 @@ export default {
 
 .action-link.remove:hover {
   color: #dc2626;
+}
+
+.product-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 /* Wishlist Summary */

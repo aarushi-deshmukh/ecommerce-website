@@ -1,11 +1,5 @@
 <template>
   <div>
-    <Header 
-      :searchQuery="searchQuery"
-      @update:searchQuery="searchQuery = $event"
-      ref="headerRef"
-    />
-
     <div class="history-page">
       <div class="history-container">
         <div class="page-header">
@@ -62,15 +56,10 @@
 
 <script>
 import axios from 'axios';
-import Header from '@/components/buyer-header.vue';
 
 export default {
-  components: {
-    Header
-  },
   data() {
     return {
-      searchQuery: '',
       orders: [],
       filterDays: 'all'
     };

@@ -296,14 +296,85 @@ def remove_from_wishlist(request, product_id):
 @permission_classes([IsAuthenticated])
 def profile(request):
 
-    buyer = Buyer.objects.get(user=request.user)
+    user = request.user
 
-    return Response({
-        "name": request.user.first_name + " " + request.user.last_name,
-        "email": request.user.email,
-        "phone": buyer.phone_number,
-        "address": buyer.address,
-        "city": buyer.city,
-        "country": buyer.country,
-        "pincode": buyer.pincode
-    })
+    # check if buyer
+    if Buyer.objects.filter(user=user).exists():
+        buyer = Buyer.objects.get(user=user)
+
+        return Response({
+            "account_type": "buyer",
+            "name": user.first_name + " " + user.last_name,
+            "email": user.email,
+            "phone": buyer.phone_number,
+            "address": buyer.address,
+            "city": buyer.city,
+            "country": buyer.country,
+            "pincode": buyer.pincode,
+            "age": buyer.age
+        })
+
+    # check if seller
+    elif Seller.objects.filter(user=user).exists():
+        seller = Seller.objects.get(user=user)
+
+        return Response({
+            "account_type": "seller",
+            "company_name": seller.company_name,
+            "email": user.email,
+            "phone": seller.contact_number,
+            "address": seller.address,
+            "city": seller.city,
+            "country": seller.country,
+            "pincode": seller.pincode
+        })
+
+    return Response({"error": "Profile not found"}, status=404)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def add_product(request):
+
+    try:
+        # ✅ get seller (IMPORTANT)
+        seller = Seller.objects.get(user=request.user)
+
+        product = Product.objects.create(
+            seller=seller,
+            name=request.data.get("name"),
+            description=request.data.get("description"),
+            price=request.data.get("price"),
+            stock=request.data.get("quantity"),
+            category=request.data.get("category"),
+            image=request.FILES.get("image")
+        )
+
+        return Response({
+            "success": True,
+            "product_id": product.id
+        })
+
+    except Seller.DoesNotExist:
+        return Response({"error": "Seller not found"}, status=400)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+@api_view(["GET"])
+def get_product(request, id):
+    try:
+        product = Product.objects.get(id=id)
+
+        return Response({
+            "id": product.id,
+            "name": product.name,
+            "description": product.description,
+            "price": float(product.price),
+            "quantity": product.stock,
+            "category": product.category,
+            "image": product.image.url if product.image else None,
+            "brand": product.seller.company_name if product.seller else None
+        })
+
+    except Product.DoesNotExist:
+        return Response({"error": "Product not found"}, status=404)

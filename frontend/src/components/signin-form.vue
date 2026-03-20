@@ -89,20 +89,28 @@ export default {
             account_type: this.account_type
           }
         )
-
         const data = response.data
+
+        if (!data.success) {
+          this.error = data.error || "Login failed"
+          return
+        }
+
+        // Now safe to use account_type
+        const accountType = data.account_type.toLowerCase()
+
 
         // store JWT
         localStorage.setItem("access", data.access)
         localStorage.setItem("refresh", data.refresh)
         localStorage.setItem("user_type", data.account_type.toLowerCase())
-          
+
         // redirect based on role
-        if (data.account_type?.toLowerCase() === "buyer") {
-          this.$router.push("/buyer-dashboard")
-          
-        } else if (data.account_type?.toLowerCase() === "seller") {
-          this.$router.push("/seller-dashboard")
+        if (accountType === "buyer") {
+          this.$router.push("/")
+
+        } else if (accountType === "seller") {
+          this.$router.push("/")
 
         } else {
           console.log("Unknown account type")

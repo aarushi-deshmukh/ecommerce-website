@@ -4,47 +4,41 @@
       <aside class="sidebar">
         <div class="profile-section">
           <div class="profile-image">
-            <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
           </div>
           <div class="profile-info">
-            <span class="profile-name">{{ userProfile.name || 'User Name' }}</span>
+            <span class="profile-name">
+              {{ accountType === 'seller' ? userProfile.company_name : userProfile.name }}
+            </span>
             <span class="mail-id">{{ userProfile.email || 'user@email.com' }}</span>
           </div>
         </div>
 
         <nav class="sidebar-nav">
           <ul class="sidebar-links">
-            <li 
-              class="nav-item"
-              :class="{ active: activeTab === 'profile' }"
-              @click="activeTab = 'profile'"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <li class="nav-item" :class="{ active: activeTab === 'profile' }" @click="activeTab = 'profile'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
               <span>My Profile</span>
             </li>
-            <li 
-              class="nav-item"
-              :class="{ active: activeTab === 'edit' }"
-              @click="activeTab = 'edit'"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <li class="nav-item" :class="{ active: activeTab === 'edit' }" @click="activeTab = 'edit'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
               </svg>
               <span>Edit Profile</span>
             </li>
-            <li 
-              class="nav-item"
-              :class="{ active: activeTab === 'help' }"
-              @click="activeTab = 'help'"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <li class="nav-item" :class="{ active: activeTab === 'help' }" @click="activeTab = 'help'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                 <line x1="12" y1="17" x2="12.01" y2="17"></line>
@@ -52,10 +46,11 @@
               <span>Help & Support</span>
             </li>
           </ul>
-          
+
           <div class="logout-section">
             <button @click="logout" class="logout-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                 <polyline points="16 17 21 12 16 7"></polyline>
                 <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -79,9 +74,9 @@
               <div class="loading-spinner"></div>
               <p>Loading profile...</p>
             </div>
-            
+
             <div v-else class="info-grid">
-              <div class="info-card" v-for="(value, key) in userProfile" :key="key">
+              <div class="info-card" v-for="(value, key) in filteredProfile" :key="key">
                 <span class="info-label">{{ formatLabel(key) }}</span>
                 <span class="info-value">{{ value }}</span>
               </div>
@@ -98,21 +93,29 @@
 
           <div class="details-container">
             <form class="edit-form">
-              <div class="form-group">
+              <div class="form-group" v-if="accountType === 'buyer'">
                 <label>Full Name</label>
-                <input type="text" v-model="userProfile.name" placeholder="Enter your name">
+                <input type="text" v-model="userProfile.name">
               </div>
+
+              <div class="form-group" v-if="accountType === 'seller'">
+                <label>Company Name</label>
+                <input type="text" v-model="userProfile.company_name">
+              </div>
+
               <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" v-model="userProfile.email" placeholder="Enter your email">
+                <label>Email</label>
+                <input type="email" v-model="userProfile.email">
               </div>
+
               <div class="form-group">
-                <label>Phone Number</label>
-                <input type="tel" v-model="userProfile.phone" placeholder="Enter your phone">
+                <label>Phone</label>
+                <input type="tel" v-model="userProfile.phone">
               </div>
+
               <div class="form-group">
                 <label>Address</label>
-                <textarea v-model="userProfile.address" placeholder="Enter your address" rows="3"></textarea>
+                <textarea v-model="userProfile.address"></textarea>
               </div>
               <div class="form-actions">
                 <button type="button" class="btn-secondary">Cancel</button>
@@ -154,48 +157,76 @@ import api from '@/api'
 export default {
   data() {
     return {
-      cart: [],
-      wishlist: [],
       loading: false,
       activeTab: 'profile',
       userProfile: {
         name: '',
         email: '',
         phone: '',
-        address: '',
-        joinedDate: ''
+        address: ''
       }
     };
   },
+  computed: {
+    accountType() {
+      return this.userProfile.account_type || localStorage.getItem("user_type");
+    },
+
+    filteredProfile() {
+      if (this.accountType === "buyer") {
+        return {
+          Name: this.userProfile.name,
+          Email: this.userProfile.email,
+          Phone: this.userProfile.phone,
+          Address: this.userProfile.address,
+          City: this.userProfile.city,
+          Country: this.userProfile.country,
+          Pincode: this.userProfile.pincode,
+          Age: this.userProfile.age
+        };
+      } else {
+        return {
+          "Company Name": this.userProfile.company_name,
+          Email: this.userProfile.email,
+          Phone: this.userProfile.phone,
+          Address: this.userProfile.address,
+          City: this.userProfile.city,
+          Country: this.userProfile.country,
+          Pincode: this.userProfile.pincode
+        };
+      }
+    }
+  },
   methods: {
     async fetchProfile() {
-  try {
+      try {
 
-    this.loading = true
+        this.loading = true
 
-    const res = await api.get("profile/")
+        const res = await api.get("profile/")
 
-    this.userProfile = res.data
+        this.userProfile = res.data
 
-  } catch (error) {
-    console.error("Failed to load profile:", error)
-  } finally {
-    this.loading = false
-  }
-},
-    
+      } catch (error) {
+        console.error("Failed to load profile:", error)
+      } finally {
+        this.loading = false
+      }
+    },
+
+
     formatLabel(key) {
       return key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
     },
     logout() {
 
-  localStorage.removeItem("access")
-  localStorage.removeItem("refresh")
-  localStorage.removeItem("user_type")
+      localStorage.removeItem("access")
+      localStorage.removeItem("refresh")
+      localStorage.removeItem("user_type")
 
-  this.$router.push("/signin")
+      this.$router.push("/signin")
 
-}
+    }
   },
   mounted() {
     this.fetchProfile();
@@ -372,8 +403,15 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .page-header {
@@ -423,7 +461,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .info-grid {
@@ -641,11 +681,11 @@ body {
   border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background-color: #1a1a1a;
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(22px);
 }
 
@@ -673,7 +713,7 @@ input:checked + .slider:before {
   .sidebar {
     width: 260px;
   }
-  
+
   .content {
     margin-left: 260px;
     padding: 40px 32px;
@@ -684,7 +724,7 @@ input:checked + .slider:before {
   .container {
     flex-direction: column;
   }
-  
+
   .sidebar {
     width: 100%;
     position: relative;
@@ -693,33 +733,33 @@ input:checked + .slider:before {
     border-right: none;
     border-bottom: 1px solid #e8e8e0;
   }
-  
+
   .content {
     margin-left: 0;
     padding: 32px 24px;
   }
-  
+
   .details-container {
     padding: 32px 24px;
   }
-  
+
   .page-header h1 {
     font-size: 28px;
   }
-  
+
   .info-card {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .info-value {
     text-align: left;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .btn-primary,
   .btn-secondary {
     width: 100%;

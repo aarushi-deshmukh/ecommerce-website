@@ -22,7 +22,7 @@
               <div class="item-main">
                 <div class="item-image-placeholder">
                   <img v-if="item.image" :src="item.image" class="product-image" />
-  <span v-else>{{ item.name.charAt(0) }}</span>
+                  <span v-else>{{ item.name.charAt(0) }}</span>
                 </div>
                 <div class="item-info">
                   <h3>{{ item.name }}</h3>
@@ -46,7 +46,7 @@
 
           <div class="cart-summary">
             <h2>Order Summary</h2>
-            
+
             <div class="summary-details">
               <div class="summary-row">
                 <span>Subtotal</span>
@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import api from '@/api'
+import { fetchCart, removeCartItem, checkoutCart, fetchWishlist, addWishlistItem } from "@/services";
 
 export default {
   data() {
@@ -87,97 +87,87 @@ export default {
       selectedCategory: 'all',
     }
   },
+
   computed: {
-  cartTotal() {
-    return this.cart
-      .reduce((total, item) => total + (item.price * item.quantity), 0)
-      .toFixed(2)
-  }
-},
+    cartTotal() {
+      return this.cart
+        .reduce((total, item) => total + (item.price * item.quantity), 0)
+        .toFixed(2)
+    }
+  },
 
   methods: {
 
     async fetchCartItems() {
       try {
-        const response = await api.get('cart/')
-        this.cart = response.data.items
-      } catch (error) {
-        console.error('Error fetching cart:', error)
+        this.cart = await fetchCart();
+      } catch {
+        console.error("Failed to load cart");
       }
     },
 
     async fetchWishlistItems() {
       try {
-        const response = await api.get('wishlist/')
-        this.wishlist = response.data.items
-      } catch (error) {
-        console.error('Error fetching wishlist:', error)
+        this.wishlist = await fetchWishlist();
+      } catch {
+        console.error("Failed to load wishlist");
       }
     },
 
     async removeFromCart(product) {
-  try {
+      try {
+        await removeCartItem(product.product_id);
 
-    await api.delete(`cart/remove/${product.product_id}/`)
+        this.cart = this.cart.filter(
+          p => p.product_id !== product.product_id
+        );
 
-    this.cart = this.cart.filter(
-      p => p.product_id !== product.product_id
-    )
-
-  } catch (error) {
-    console.error('Failed to remove item:', error)
-  }
-},
+      } catch {
+        console.error("Failed to remove item");
+      }
+    },
 
     async addToWishlist(product) {
       try {
+        await addWishlistItem(product.product_id);
 
-        await api.post("wishlist/add/", {
-  product_id: product.product_id
-})
-        await this.fetchWishlistItems()
+        await this.fetchWishlistItems();
+        await this.removeFromCart(product);
 
-        await this.removeFromCart(product)
+        this.$refs.headerRef?.refreshCounts();
 
-        this.$refs.headerRef?.refreshCounts()
-
-      } catch (err) {
-        console.error("Failed to save for later:", err)
+      } catch {
+        console.error("Failed to save for later");
       }
     },
 
     async checkout() {
       try {
+        await checkoutCart(this.cart);
 
-        await api.post('place-order/', {
-          items: this.cart
-        })
+        alert("Order placed successfully!");
+        this.cart = [];
 
-        alert("Order placed successfully!")
+        this.$refs.headerRef?.refreshCounts();
 
-        this.cart = []
-        
-        this.$refs.headerRef?.refreshCounts()
-
-      } catch (error) {
-        console.error("Failed to place order:", error)
-        alert("Failed to place order.")
+      } catch {
+        alert("Failed to place order.");
       }
     },
 
     goHome() {
-      this.$router.push('/buyer-dashboard')
+      this.$router.push('/buyer-dashboard');
     },
 
     filterCategory(category) {
-      this.selectedCategory = category
+      this.selectedCategory = category;
     }
 
   },
 
   mounted() {
-    this.fetchCartItems()
-    this.fetchWishlistItems()
+    this.fetchCartItems();
+    this.fetchWishlistItems();
   }
 }
 </script>

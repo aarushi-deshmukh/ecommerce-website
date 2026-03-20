@@ -13,7 +13,7 @@
           <div class="feature">✓ 30-Day Easy Returns</div>
           <div class="feature">✓ Exclusive Member Deals</div>
         </div>
-        <button class="shop-btn" @click="$router.push('/buyer-dashboard')">Shop Now</button>
+        <button class="shop-btn" @click="$router.push('/shopping')">Shop Now</button>
       </div>
       <div class="banner-images">
         <div class="main-image">

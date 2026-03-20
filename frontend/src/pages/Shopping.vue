@@ -31,8 +31,9 @@
       <div v-else-if="error" class="error">{{ error }}</div>
 
       <div class="product-grid" v-else>
-        <div class="product-card" v-for="product in filteredProducts" :key="product.id">
-          <div class="image-zone" @click="getProduct(product)">
+        <div class="product-card" v-for="product in filteredProducts" :key="product.id"
+          @click="goToDetails(product.id)">
+          <div class="image-zone">
             <img :src="product.image" :alt="product.name" class="product-img" />
             <button class="wishlist-btn" @click.stop="addToWishlist(product)" :class="{ active: product.saved }">
               <svg viewBox="0 0 24 24">
@@ -45,7 +46,7 @@
 
           <div class="card-body">
             <div class="product-brand">{{ product.brand }}</div>
-            <h3 class="product-name" @click="getProduct(product)">{{ product.name }}</h3>
+            <h3 class="product-name">{{ product.name }}</h3>
 
             <div class="divider"></div>
 
@@ -82,14 +83,14 @@
     </section>
 
     <!-- Footer -->
-    
+
   </div>
 </template>
 
 <script>
 import { ref, computed, onMounted } from "vue";
-import api from "@/api";
 import { useRouter } from "vue-router";
+import { fetchProducts as getProducts, fetchCart, addToCart as addCartItem, fetchWishlist, addToWishlist as addWishItem } from "@/services";
 
 export default {
   setup() {
@@ -115,35 +116,38 @@ export default {
 
     const fetchProducts = async () => {
       try {
-        const response = await api.get("products/");
-        products.value = response.data.map(p => ({
+        const data = await getProducts();
+
+        products.value = data.map(p => ({
           ...p,
           userQuantity: 1,
           added: false,
           saved: false
         }));
+
         categories.value = [...new Set(products.value.map(p => p.category))];
+
       } catch {
         error.value = "Failed to fetch products";
       } finally {
         loading.value = false;
       }
     };
-
     const changeQty = (product, delta) => {
       if (product.added) return;
       product.userQuantity = Math.max(1, Math.min(product.quantity, product.userQuantity + delta));
     };
 
     const addToCart = async (product) => {
-
       try {
-        await api.post("cart/add/", {
-          product_id: product.id,
-          quantity: product.userQuantity || 1
-        });
+        await addCartItem(product.id, product.userQuantity || 1);
+
         product.added = true;
-        cartTotal.value += 1;
+
+        // refresh count properly
+        const cartItems = await fetchCart();
+        cartTotal.value = cartItems.length;
+
       } catch (err) {
         console.error("Failed to add to cart:", err);
       }
@@ -151,36 +155,20 @@ export default {
 
     const addToWishlist = async (product) => {
       try {
-        await api.post("wishlist/add/", {
-          product_id: product.id
-        });
+        await addWishItem(product.id);
+
         product.saved = true;
-        wishlistTotal.value += 1;
+
+        const wishlistItems = await fetchWishlist();
+        wishlistTotal.value = wishlistItems.length;
+
       } catch (err) {
         console.error("Failed to add to wishlist:", err);
       }
     };
 
-    const fetchCartItems = async () => {
-      try {
-        const res = await api.get("cart/");
-        cartTotal.value = res.data.items?.length || 0;
-      } catch (err) {
-        console.error("Failed to fetch cart:", err);
-      }
-    };
-
-    const fetchWishlistItems = async () => {
-      try {
-        const res = await api.get("wishlist/");
-        wishlistTotal.value = res.data.items?.length || 0;
-      } catch (err) {
-        console.error("Failed to fetch wishlist:", err);
-      }
-    };
-
-    const getProduct = (product) => {
-      router.push(`/product/${encodeURIComponent(product.name)}/${encodeURIComponent(product.brand)}/`);
+    const goToDetails = (id) => {
+      router.push(`/details/${id}`);
     };
 
     const filterCategory = (category) => {
@@ -197,14 +185,10 @@ export default {
 
     onMounted(() => {
       fetchProducts();
-      fetchCartItems();
-      fetchWishlistItems();
     });
 
     return {
-      searchQuery, loading, error, filteredProducts, displayCategories,
-      wishlistTotal, cartTotal, selectedCategory, categories,
-      filterCategory, getProduct, addToCart, addToWishlist, changeQty
+      filterCategory, goToDetails, addToCart, addToWishlist, changeQty
     };
   }
 };
@@ -462,7 +446,6 @@ export default {
   transition: color 0.2s;
   margin-bottom: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

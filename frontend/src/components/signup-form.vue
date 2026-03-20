@@ -184,9 +184,9 @@ export default {
 
         setTimeout(() => {
           if (this.account_type === "Buyer") {
-            this.$router.push("/buyer-dashboard");
+            this.$router.push("/");
           } else {
-            this.$router.push("/seller-dashboard");
+            this.$router.push("/");
           }
         }, 1200);
       } catch (error) {
